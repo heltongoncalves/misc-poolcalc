@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora para Tratamento de Piscinas</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f7ff;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* Para telas menores */
+            gap: 15px;
+        }
+        h1 {
+            color: #0056b3;
+            margin: 0;
+            font-size: 1.8em;
+        }
+        h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        /* Estilos para o seletor de idioma personalizado */
+        .custom-select-wrapper {
+            position: relative;
+            width: 180px;
+            user-select: none;
+        }
+        .select-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background-color: #f7f7f7;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .select-btn::after {
+            content: '▼';
+            font-size: 0.7em;
+            color: #888;
+        }
+        .select-content {
+            position: absolute;
+            top: 110%;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            z-index: 10;
+            display: none; /* Inicia oculto */
+        }
+        .custom-select-wrapper.active .select-content {
+            display: block;
+        }
+        .select-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .select-item:hover {
+            background-color: #f0f7ff;
+        }
+        .secao-calculo {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+            color: #555;
+            min-width: 180px;
+        }
+        input[type="number"] {
+            width: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 10px auto 0;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .resultado {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e6f7ff;
+            border: 1px solid #b3e0ff;
+            border-radius: 5px;
+            display: none; /* Inicia oculto */
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .resultado p {
+            margin: 0 0 10px 0;
+        }
+        .resultado .frase-acao {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #004085;
+        }
+        .resultado .explicacao-calculo {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #volume-piscina-group {
+            background-color: #fffbe6;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1 data-key="mainTitle"></h1>
+        <!-- Seletor de Idioma Personalizado -->
+        <div class="custom-select-wrapper">
+            <div class="select-btn">
+                <span></span>
+            </div>
+            <div class="select-content">
+                <!-- As opções serão adicionadas via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div id="volume-piscina-group" class="input-group">
+        <label for="volumePiscina" data-key="poolVolumeLabel"></label>
+        <input type="number" id="volumePiscina" data-placeholder-key="volumePlaceholder">
+    </div>
+
+    <div class="secao-calculo">
+        <h2 data-key="phTitle"></h2>
+        <div class="input-group">
+            <label for="phAtual" data-key="phCurrentLabel"></label>
+            <input type="number" id="phAtual" step="0.1" data-placeholder-key="phCurrentPlaceholder">
+        </div>
+        <div class="input-group">
+            <label for="phDesejado" data-key="phDesiredLabel"></label>
+            <input type="number" id="phDesejado" step="0.1" value="7.4">
+        </div>
+        <button onclick="calcularPH()" data-key="calculatePhButton"></button>
+        <div class="resultado" id="resultadoPH"></div>
+    </div>
+
+    <div class="secao-calculo">
+        <h2 data-key="alkTitle"></h2>
+        <div class="input-group">
+            <label for="alcalinidadeAtual" data-key="alkCurrentLabel"></label>
+            <input type="number" id="alcalinidadeAtual" step="5" data-placeholder-key="alkCurrentPlaceholder">
+        </div>
+        <div class="input-group">
+            <label for="alcalinidadeDesejada" data-key="alkDesiredLabel"></label>
+            <input type="number" id="alcalinidadeDesejada" step="5" value="100">
+        </div>
+        <button onclick="calcularAlcalinidade()" data-key="calculateAlkButton"></button>
+        <div class="resultado" id="resultadoAlcalinidade"></div>
+    </div>
+
+    <div class="secao-calculo">
+        <h2 data-key="chlorineTitle"></h2>
+        <p data-key="chlorineDescription"></p>
+        <button onclick="calcularCloro()" data-key="calculateChlorineButton"></button>
+        <div class="resultado" id="resultadoCloro"></div>
+    </div>
+
+</div>
+
+<script>
+    const translations = {
+        pt: { name: "🇧🇷 Português", mainTitle: "Calculadora para Tratamento de Piscinas", poolVolumeLabel: "Volume da Piscina (Litros):", volumePlaceholder: "Ex: 50000", phTitle: "1. Ajustar pH (Elevar com Barrilha)", phCurrentLabel: "pH Atual:", phCurrentPlaceholder: "Ex: 6.8", phDesiredLabel: "pH Desejado (Ideal 7.4):", calculatePhButton: "Calcular Dosagem de Barrilha", alkTitle: "2. Ajustar Alcalinidade Total (Elevar)", alkCurrentLabel: "Alcalinidade Atual (ppm):", alkCurrentPlaceholder: "Ex: 50", alkDesiredLabel: "Alcalinidade Desejada (Ideal 100 ppm):", calculateAlkButton: "Calcular Dosagem de Elevador", chlorineTitle: "3. Dosagem de Cloro Granulado (Manutenção)", chlorineDescription: "A dosagem média para manutenção é de 4 gramas por 1.000 litros. Este cálculo é uma referência para a aplicação diária ou em dias alternados.", calculateChlorineButton: "Calcular Dosagem de Cloro", alertVolume: "Por favor, insira um volume válido para a piscina antes de calcular.", alertFillFields: "Por favor, preencha os valores atual e desejado.", phOk: "O pH atual já está no nível desejado ou acima dele. Nenhum ajuste para elevar é necessário.", phAction: "Você deve adicionar aproximadamente {amount} kg de barrilha (elevador de pH). É recomendado aplicar em etapas para não superdosar.", alkOk: "A alcalinidade atual já está no nível desejado ou acima dele. Nenhum ajuste para elevar é necessário.", alkAction: "Você deve adicionar aproximadamente {amount} kg de elevador de alcalinidade (bicarbonato de sódio).", chlorineAction: "Para uma dosagem de manutenção, você deve adicionar aproximadamente {amount} gramas de cloro granulado.", explanationTitle: "Explicação do Cálculo:", volumeLine: "Volume: {volume} litros ({volumeM3} m³)", phIncreaseLine: "Aumento de pH necessário: De {current} para {desired} = {diff}", phDosageLine: "Dosagem padrão: {dosage}g/m³ para cada 0.1 de aumento de pH", phCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} gramas", alkIncreaseLine: "Aumento de alcalinidade necessário: De {current} ppm para {desired} ppm = {diff} ppm", alkDosageLine: "Dosagem padrão: {dosage}g/m³ para cada 10 ppm de aumento", alkCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} gramas", chlorineDosageLine: "Dosagem padrão de manutenção: {dosage}g por 1.000 litros (1 m³)", chlorineCalculationLine: "Cálculo: {volumeM3} m³ * {dosage}g = {result} gramas", },
+        ru: { name: "🇷🇺 Русский", mainTitle: "Калькулятор для обработки бассейна", poolVolumeLabel: "Объем бассейна (литры):", volumePlaceholder: "Пример: 50000", phTitle: "1. Регулировка pH (повышение кальцинированной содой)", phCurrentLabel: "Текущий pH:", phCurrentPlaceholder: "Пример: 6.8", phDesiredLabel: "Желаемый pH (идеал 7.4):", calculatePhButton: "Рассчитать дозировку соды", alkTitle: "2. Регулировка общей щелочности (повышение)", alkCurrentLabel: "Текущая щелочность (ppm):", alkCurrentPlaceholder: "Пример: 50", alkDesiredLabel: "Желаемая щелочность (идеал 100 ppm):", calculateAlkButton: "Рассчитать дозировку повысителя", chlorineTitle: "3. Дозировка гранулированного хлора (поддержание)", chlorineDescription: "Средняя поддерживающая доза составляет 4 грамма на 1000 литров. Этот расчет является ориентировочным для ежедневного применения или через день.", calculateChlorineButton: "Рассчитать дозировку хлора", alertVolume: "Пожалуйста, введите действительный объем бассейна перед расчетом.", alertFillFields: "Пожалуйста, заполните текущие и желаемые значения.", phOk: "Текущий pH уже на желаемом уровне или выше. Повышение не требуется.", phAction: "Вам следует добавить примерно {amount} кг кальцинированной соды (повыситель pH). Рекомендуется вносить поэтапно, чтобы избежать передозировки.", alkOk: "Текущая щелочность уже на желаемом уровне или выше. Повышение не требуется.", alkAction: "Вам следует добавить примерно {amount} кг повысителя щелочности (бикарбонат натрия).", chlorineAction: "Для поддерживающей дозы вам следует добавить примерно {amount} граммов гранулированного хлора.", explanationTitle: "Объяснение расчета:", volumeLine: "Объем: {volume} литров ({volumeM3} м³)", phIncreaseLine: "Требуемое повышение pH: с {current} до {desired} = {diff}", phDosageLine: "Стандартная дозировка: {dosage}г/м³ на каждые 0.1 повышения pH", phCalculationLine: "Расчет: ({volumeM3} м³ * {dosage}г * ({diff} / 0.1)) = {result} граммов", alkIncreaseLine: "Требуемое повышение щелочности: с {current} ppm до {desired} ppm = {diff} ppm", alkDosageLine: "Стандартная дозировка: {dosage}г/м³ на каждые 10 ppm повышения", alkCalculationLine: "Расчет: ({volumeM3} м³ * {dosage}г * ({diff} / 10)) = {result} граммов", chlorineDosageLine: "Стандартная поддерживающая дозировка: {dosage}г на 1000 литров (1 м³)", chlorineCalculationLine: "Расчет: ({volumeM3} м³ * {dosage}г = {result} граммов", },
+        hi: { name: "🇮🇳 हिन्दी", mainTitle: "पूल उपचार कैलकुलेटर", poolVolumeLabel: "पूल का आयतन (लीटर):", volumePlaceholder: "उदा: 50000", phTitle: "1. पीएच समायोजित करें (सोडा ऐश से बढ़ाएं)", phCurrentLabel: "वर्तमान पीएच:", phCurrentPlaceholder: "उदा: 6.8", phDesiredLabel: "वांछित पीएच (आदर्श 7.4):", calculatePhButton: "सोडा ऐश की खुराक की गणना करें", alkTitle: "2. कुल क्षारीयता समायोजित करें (बढ़ाएं)", alkCurrentLabel: "वर्तमान क्षारीयता (पीपीएम):", alkCurrentPlaceholder: "उदा: 50", alkDesiredLabel: "वांछित क्षारीयता (आदर्श 100 पीपीएम):", calculateAlkButton: "बढ़ाने वाले की खुराक की गणना करें", chlorineTitle: "3. दानेदार क्लोरीन की खुराक (रखरखाव)", chlorineDescription: "औसत रखरखाव खुराक प्रति 1,000 लीटर 4 ग्राम है। यह गणना दैनिक या वैकल्पिक दिन के आवेदन के लिए एक संदर्भ है।", calculateChlorineButton: "क्लोरीन की खुराक की गणना करें", alertVolume: "गणना करने से पहले कृपया एक मान्य पूल आयतन दर्ज करें।", alertFillFields: "कृपया वर्तमान और वांछित मान भरें।", phOk: "वर्तमान पीएच पहले से ही वांछित स्तर पर या उससे ऊपर है। इसे बढ़ाने के लिए कोई समायोजन आवश्यक नहीं है।", phAction: "आपको लगभग {amount} किलो सोडा ऐश (पीएच बढ़ाने वाला) डालना चाहिए। ओवरडोज से बचने के लिए इसे चरणों में लागू करने की सिफारिश की जाती है।", alkOk: "वर्तमान क्षारीयता पहले से ही वांछित स्तर पर या उससे ऊपर है। इसे बढ़ाने के लिए कोई समायोजन आवश्यक नहीं है।", alkAction: "आपको लगभग {amount} किलो क्षारीयता बढ़ाने वाला (सोडियम बाइकार्बोनेट) डालना चाहिए।", chlorineAction: "रखरखाव खुराक के लिए, आपको लगभग {amount} ग्राम दानेदार क्लोरीन डालना चाहिए।", explanationTitle: "गणना की व्याख्या:", volumeLine: "आयतन: {volume} लीटर ({volumeM3} m³)", phIncreaseLine: "आवश्यक पीएच वृद्धि: {current} से {desired} = {diff}", phDosageLine: "मानक खुराक: प्रत्येक 0.1 पीएच वृद्धि के लिए {dosage}ग्राम/m³", phCalculationLine: "गणना: ({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} ग्राम", alkIncreaseLine: "आवश्यक क्षारीयता वृद्धि: {current} पीपीएम से {desired} पीपीएम = {diff} पीपीएम", alkDosageLine: "मानक खुराक: प्रत्येक 10 पीपीएम वृद्धि के लिए {dosage}ग्राम/m³", alkCalculationLine: "गणना: ({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} ग्राम", chlorineDosageLine: "मानक रखरखाव खुराक: प्रति 1,000 लीटर (1 m³) {dosage}ग्राम", chlorineCalculationLine: "गणना: {volumeM3} m³ * {dosage}g = {result} ग्राम", },
+        zh: { name: "🇨🇳 中文", mainTitle: "泳池处理计算器", poolVolumeLabel: "泳池容量（升）：", volumePlaceholder: "例如：50000", phTitle: "1. 调节pH值（用苏打粉提高）", phCurrentLabel: "当前pH值：", phCurrentPlaceholder: "例如：6.8", phDesiredLabel: "期望pH值（理想7.4）：", calculatePhButton: "计算苏打粉用量", alkTitle: "2. 调节总碱度（提高）", alkCurrentLabel: "当前碱度（ppm）：", alkCurrentPlaceholder: "例如：50", alkDesiredLabel: "期望碱度（理想100 ppm）：", calculateAlkButton: "计算增效剂用量", chlorineTitle: "3. 颗粒氯用量（维护）", chlorineDescription: "平均维护剂量为每1000升4克。此计算可作为每日或隔日使用的参考。", calculateChlorineButton: "计算氯用量", alertVolume: "计算前请输入有效的泳池容量。", alertFillFields: "请填写当前值和期望值。", phOk: "当前pH值已达到或高于期望水平。无需进行提高调整。", phAction: "您应添加约 {amount} 公斤的苏打粉（pH增高剂）。建议分阶段施用，以免过量。", alkOk: "当前碱度已达到或高于期望水平。无需进行提高调整。", alkAction: "您应添加约 {amount} 公斤的碱度增高剂（碳酸氢钠）。", chlorineAction: "对于维护剂量，您应添加约 {amount} 克的颗粒氯。", explanationTitle: "计算说明：", volumeLine: "容量：{volume} 升 ({volumeM3} m³)", phIncreaseLine: "需要提高的pH值：从 {current} 到 {desired} = {diff}", phDosageLine: "标准用量：每提高0.1 pH值，每立方米 {dosage} 克", phCalculationLine: "计算：({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} 克", alkIncreaseLine: "需要提高的碱度：从 {current} ppm 到 {desired} ppm = {diff} ppm", alkDosageLine: "标准用量：每提高10 ppm，每立方米 {dosage} 克", alkCalculationLine: "计算：({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} 克", chlorineDosageLine: "标准维护用量：每1000升（1立方米）{dosage} 克", chlorineCalculationLine: "计算：({volumeM3} m³ * {dosage}g = {result} 克", },
+        en: { name: "🇺🇸 English", mainTitle: "Pool Treatment Calculator", poolVolumeLabel: "Pool Volume (Liters):", volumePlaceholder: "Ex: 50000", phTitle: "1. Adjust pH (Raise with Soda Ash)", phCurrentLabel: "Current pH:", phCurrentPlaceholder: "Ex: 6.8", phDesiredLabel: "Desired pH (Ideal 7.4):", calculatePhButton: "Calculate Soda Ash Dosage", alkTitle: "2. Adjust Total Alkalinity (Raise)", alkCurrentLabel: "Current Alkalinity (ppm):", alkCurrentPlaceholder: "Ex: 50", alkDesiredLabel: "Desired Alkalinity (Ideal 100 ppm):", calculateAlkButton: "Calculate Raiser Dosage", chlorineTitle: "3. Granular Chlorine Dosage (Maintenance)", chlorineDescription: "The average maintenance dose is 4 grams per 1,000 liters. This calculation is a reference for daily or alternate day application.", calculateChlorineButton: "Calculate Chlorine Dosage", alertVolume: "Please enter a valid pool volume before calculating.", alertFillFields: "Please fill in the current and desired values.", phOk: "The current pH is already at or above the desired level. No adjustment to raise it is necessary.", phAction: "You should add approximately {amount} kg of soda ash (pH increaser). It is recommended to apply in stages to avoid overdose.", alkOk: "The current alkalinity is already at or above the desired level. No adjustment to raise it is necessary.", alkAction: "You should add approximately {amount} kg of alkalinity increaser (sodium bicarbonate).", chlorineAction: "For a maintenance dose, you should add approximately {amount} grams of granular chlorine.", explanationTitle: "Calculation Explanation:", volumeLine: "Volume: {volume} liters ({volumeM3} m³)", phIncreaseLine: "Required pH increase: From {current} to {desired} = {diff}", phDosageLine: "Standard dosage: {dosage}g/m³ for each 0.1 pH increase", phCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} grams", alkIncreaseLine: "Required alkalinity increase: From {current} ppm to {desired} ppm = {diff} ppm", alkDosageLine: "Standard dosage: {dosage}g/m³ for each 10 ppm increase", alkCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} grams", chlorineDosageLine: "Standard maintenance dosage: {dosage}g per 1,000 liters (1 m³)", chlorineCalculationLine: "Calculation: {volumeM3} m³ * {dosage}g = {result} grams", }
+    };
+
+    let currentLanguage = 'pt';
+
+    const customSelect = document.querySelector('.custom-select-wrapper');
+    const selectBtn = customSelect.querySelector('.select-btn');
+    const selectContent = customSelect.querySelector('.select-content');
+    const selectBtnText = selectBtn.querySelector('span');
+
+    // Popula as opções de idioma dinamicamente
+    const langOptions = ['pt', 'ru', 'hi', 'zh', 'en'];
+    langOptions.forEach(langCode => {
+        const option = document.createElement('div');
+        option.className = 'select-item';
+        option.textContent = translations[langCode].name;
+        option.dataset.lang = langCode;
+        selectContent.appendChild(option);
+    });
+
+    const selectItems = selectContent.querySelectorAll('.select-item');
+
+    selectBtn.addEventListener('click', () => {
+        customSelect.classList.toggle('active');
+    });
+
+    selectItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const lang = item.dataset.lang;
+            setLanguage(lang);
+            customSelect.classList.remove('active');
+        });
+    });
+    
+    // Fecha o dropdown se clicar fora
+    document.addEventListener('click', (e) => {
+        if (!customSelect.contains(e.target)) {
+            customSelect.classList.remove('active');
+        }
+    });
+
+    function setLanguage(lang) {
+        currentLanguage = lang;
+        document.documentElement.lang = lang;
+
+        // Atualiza o texto do botão do seletor personalizado
+        selectBtnText.textContent = translations[lang].name;
+
+        // Atualiza todos os outros textos da página
+        document.querySelectorAll('[data-key]').forEach(elem => {
+            const key = elem.getAttribute('data-key');
+            if (translations[lang][key]) {
+                elem.textContent = translations[lang][key];
+            }
+        });
+        document.querySelectorAll('[data-placeholder-key]').forEach(elem => {
+            const key = elem.getAttribute('data-placeholder-key');
+            if (translations[lang][key]) {
+                elem.placeholder = translations[lang][key];
+            }
+        });
+    }
+
+    // Define o idioma inicial ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        setLanguage('pt');
+    });
+
+    function validarVolume() {
+        const volumeInput = document.getElementById('volumePiscina');
+        const volume = parseFloat(volumeInput.value);
+        if (isNaN(volume) || volume <= 0) {
+            alert(translations[currentLanguage].alertVolume);
+            volumeInput.focus();
+            return null;
+        }
+        return volume;
+    }
+
+    function exibirResultado(divId, frase, explicacao) {
+        const resultadoDiv = document.getElementById(divId);
+        const explanationTitle = translations[currentLanguage].explanationTitle;
+        resultadoDiv.innerHTML = `<p class="frase-acao">${frase}</p><div class="explicacao-calculo"><strong>${explanationTitle}</strong><br>${explicacao}</div>`;
+        resultadoDiv.style.display = 'block';
+    }
+
+    function calcularPH() {
+        const volume = validarVolume();
+        if (!volume) return;
+
+        const atual = parseFloat(document.getElementById('phAtual').value);
+        const desejado = parseFloat(document.getElementById('phDesejado').value);
+        
+        if (isNaN(atual) || isNaN(desejado)) {
+            exibirResultado('resultadoPH', translations[currentLanguage].alertFillFields, '');
+            return;
+        }
+
+        if (atual >= desejado) {
+            exibirResultado('resultadoPH', translations[currentLanguage].phOk, '');
+            return;
+        }
+
+        const volumeM3 = volume / 1000;
+        const gramasPorM3PorPonto = 6;
+        const aumentoNecessario = desejado - atual;
+        const dosagemGramas = volumeM3 * gramasPorM3PorPonto * (aumentoNecessario / 0.1);
+        const dosagemKg = dosagemGramas / 1000;
+
+        const frase = translations[currentLanguage].phAction.replace('{amount}', dosagemKg.toFixed(2));
+        const explicacao = [
+            translations[currentLanguage].volumeLine.replace('{volume}', volume.toLocaleString()).replace('{volumeM3}', volumeM3.toFixed(2)),
+            translations[currentLanguage].phIncreaseLine.replace('{current}', atual).replace('{desired}', desejado).replace('{diff}', aumentoNecessario.toFixed(1)),
+            translations[currentLanguage].phDosageLine.replace('{dosage}', gramasPorM3PorPonto),
+            translations[currentLanguage].phCalculationLine.replace('{volumeM3}', volumeM3.toFixed(2)).replace('{dosage}', gramasPorM3PorPonto).replace('{diff}', aumentoNecessario.toFixed(1)).replace('{result}', dosagemGramas.toFixed(2))
+        ].join('<br>');
+
+        exibirResultado('resultadoPH', frase, explicacao);
+    }
+
+    function calcularAlcalinidade() {
+        const volume = validarVolume();
+        if (!volume) return;
+
+        const atual = parseFloat(document.getElementById('alcalinidadeAtual').value);
+        const desejado = parseFloat(document.getElementById('alcalinidadeDesejada').value);
+        
+        if (isNaN(atual) || isNaN(desejado)) {
+            exibirResultado('resultadoAlcalinidade', translations[currentLanguage].alertFillFields, '');
+            return;
+        }
+
+        if (atual >= desejado) {
+            exibirResultado('resultadoAlcalinidade', translations[currentLanguage].alkOk, '');
+            return;
+        }
+
+        const volumeM3 = volume / 1000;
+        const gramasPorM3Por10PPM = 18;
+        const aumentoNecessario = desejado - atual;
+        const dosagemGramas = volumeM3 * gramasPorM3Por10PPM * (aumentoNecessario / 10);
+        const dosagemKg = dosagemGramas / 1000;
+
+        const frase = translations[currentLanguage].alkAction.replace('{amount}', dosagemKg.toFixed(2));
+        const explicacao = [
+            translations[currentLanguage].volumeLine.replace('{volume}', volume.toLocaleString()).replace('{volumeM3}', volumeM3.toFixed(2)),
+            translations[currentLanguage].alkIncreaseLine.replace('{current}', atual).replace('{desired}', desejado).replace('{diff}', aumentoNecessario.toFixed(0)),
+            translations[currentLanguage].alkDosageLine.replace('{dosage}', gramasPorM3Por10PPM),
+            translations[currentLanguage].alkCalculationLine.replace('{volumeM3}', volumeM3.toFixed(2)).replace('{dosage}', gramasPorM3Por10PPM).replace('{diff}', aumentoNecessario.toFixed(0)).replace('{result}', dosagemGramas.toFixed(2))
+        ].join('<br>');
+
+        exibirResultado('resultadoAlcalinidade', frase, explicacao);
+    }
+
+    function calcularCloro() {
+        const volume = validarVolume();
+        if (!volume) return;
+        
+        const volumeM3 = volume / 1000;
+        const gramasPorM3 = 4;
+        const dosagemGramas = volumeM3 * gramasPorM3;
+
+        const frase = translations[currentLanguage].chlorineAction.replace('{amount}', dosagemGramas.toFixed(0));
+        const explicacao = [
+             translations[currentLanguage].volumeLine.replace('{volume}', volume.toLocaleString()).replace('{volumeM3}', volumeM3.toFixed(2)),
+             translations[currentLanguage].chlorineDosageLine.replace('{dosage}', gramasPorM3),
+             translations[currentLanguage].chlorineCalculationLine.replace('{volumeM3}', volumeM3.toFixed(2)).replace('{dosage}', gramasPorM3).replace('{result}', dosagemGramas.toFixed(2))
+        ].join('<br>');
+        
+        exibirResultado('resultadoCloro', frase, explicacao);
+    }
+</script>
+
+</body>
+</html>
+
