@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora para Tratamento de Piscinas</title>
+    <title>Calculadora para Tratamento de Piscinas com Cloro</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -41,6 +41,10 @@
             border-bottom: 2px solid #e0e0e0;
             padding-bottom: 10px;
             text-align: center;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         /* Estilos para o seletor de idioma personalizado */
         .custom-select-wrapper {
@@ -205,35 +209,33 @@
             width: 100%;
             height: 100%;
         }
-        /* Estilos para a seção Sobre */
+        
+        /* Estilos para seções colapsáveis */
         .secao-sobre {
             background-color: #f8f9fa;
         }
-        .secao-sobre h2 {
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #e0e0e0;
-        }
-        .secao-sobre .toggle-arrow {
+        .toggle-arrow {
             font-size: 0.8em;
             transition: transform 0.3s ease;
         }
-        .secao-sobre.collapsed .toggle-arrow {
-            transform: rotate(-90deg);
-        }
-        .sobre-content {
-            padding-top: 15px;
-            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-            max-height: 200px; /* Altura suficiente para o conteúdo */
-            overflow: hidden;
-            opacity: 1;
-        }
-        .secao-sobre.collapsed .sobre-content {
+        .secao-calculo.collapsed > .secao-content,
+        .secao-calculo.collapsed > .sobre-content {
             max-height: 0;
             padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
             opacity: 0;
+            pointer-events: none;
+        }
+        .secao-calculo.collapsed .toggle-arrow {
+            transform: rotate(-90deg);
+        }
+        .secao-content, .sobre-content {
+            padding-top: 15px;
+            transition: all 0.4s ease-in-out;
+            max-height: 1000px; /* Altura grande o suficiente */
+            overflow: hidden;
+            opacity: 1;
         }
         .sobre-item {
             display: flex;
@@ -281,65 +283,115 @@
         </div>
     </div>
 
-    <div class="secao-calculo">
-        <h2 data-key="alkTitle"></h2>
-        <div class="input-group">
-            <label for="alcalinidadeAtual" data-key="alkCurrentLabel"></label>
-            <input type="number" id="alcalinidadeAtual" step="5" data-placeholder-key="alkCurrentPlaceholder">
+    <div class="secao-calculo collapsible collapsed">
+        <h2 onclick="toggleSection(this)">
+            <span data-key="alkTitle"></span>
+            <span class="toggle-arrow">▼</span>
+        </h2>
+        <div class="secao-content">
+            <div class="input-group">
+                <label for="alcalinidadeAtual" data-key="alkCurrentLabel"></label>
+                <input type="number" id="alcalinidadeAtual" step="5" data-placeholder-key="alkCurrentPlaceholder">
+            </div>
+            <div class="input-group">
+                <label for="alcalinidadeDesejada" data-key="alkDesiredLabel"></label>
+                <input type="number" id="alcalinidadeDesejada" step="5" value="100">
+            </div>
+            <button onclick="calcularAlcalinidade()" data-key="calculateAlkButton"></button>
+            <div class="resultado" id="resultadoAlcalinidade"></div>
         </div>
-        <div class="input-group">
-            <label for="alcalinidadeDesejada" data-key="alkDesiredLabel"></label>
-            <input type="number" id="alcalinidadeDesejada" step="5" value="100">
-        </div>
-        <button onclick="calcularAlcalinidade()" data-key="calculateAlkButton"></button>
-        <div class="resultado" id="resultadoAlcalinidade"></div>
     </div>
 
-    <div class="secao-calculo">
-        <h2 data-key="phTitle"></h2>
-        <div class="input-group">
-            <label for="phAtual" data-key="phCurrentLabel"></label>
-            <input type="number" id="phAtual" step="0.1" data-placeholder-key="phCurrentPlaceholder">
+    <div class="secao-calculo collapsible collapsed">
+        <h2 onclick="toggleSection(this)">
+            <span data-key="phTitle"></span>
+            <span class="toggle-arrow">▼</span>
+        </h2>
+        <div class="secao-content">
+            <div class="input-group">
+                <label for="phAtual" data-key="phCurrentLabel"></label>
+                <input type="number" id="phAtual" step="0.1" data-placeholder-key="phCurrentPlaceholder">
+            </div>
+            <div class="input-group">
+                <label for="phDesejado" data-key="phDesiredLabel"></label>
+                <input type="number" id="phDesejado" step="0.1" value="7.4">
+            </div>
+            <button onclick="calcularPH()" data-key="calculatePhButton"></button>
+            <div class="resultado" id="resultadoPH"></div>
         </div>
-        <div class="input-group">
-            <label for="phDesejado" data-key="phDesiredLabel"></label>
-            <input type="number" id="phDesejado" step="0.1" value="7.4">
-        </div>
-        <button onclick="calcularPH()" data-key="calculatePhButton"></button>
-        <div class="resultado" id="resultadoPH"></div>
     </div>
 
-    <div class="secao-calculo">
-        <h2 data-key="chlorineTitle"></h2>
-        <p data-key="chlorineDescription"></p>
-        <button onclick="calcularCloro()" data-key="calculateChlorineButton"></button>
-        <div class="resultado" id="resultadoCloro"></div>
+    <div class="secao-calculo collapsible collapsed">
+        <h2 onclick="toggleSection(this)">
+            <span data-key="phCloroTitle"></span>
+            <span class="toggle-arrow">▼</span>
+        </h2>
+        <div class="secao-content">
+            <p data-key="phCloroDescription"></p>
+            <div class="input-group">
+                <label for="phCloroAtual" data-key="phCurrentLabel"></label>
+                <input type="number" id="phCloroAtual" step="0.1" data-placeholder-key="phCurrentPlaceholder">
+            </div>
+            <div class="input-group">
+                <label for="phCloroDesejado" data-key="phDesiredLabel"></label>
+                <input type="number" id="phCloroDesejado" step="0.1" value="7.4">
+            </div>
+            <button onclick="calcularPhCloroCombinado()" data-key="calculatePhCloroButton"></button>
+            <div class="resultado" id="resultadoPhCloro"></div>
+        </div>
+    </div>
+
+    <div class="secao-calculo collapsible collapsed">
+        <h2 onclick="toggleSection(this)">
+            <span data-key="chlorineTitle"></span>
+            <span class="toggle-arrow">▼</span>
+        </h2>
+        <div class="secao-content">
+            <p data-key="chlorineDescription"></p>
+            <button onclick="calcularCloro()" data-key="calculateChlorineButton"></button>
+            <div class="resultado" id="resultadoCloro"></div>
+        </div>
     </div>
     
-    <div class="secao-calculo">
-        <h2 data-key="sulfateTitle"></h2>
-        <p data-key="sulfateDescription"></p>
-        <button onclick="calcularSulfato()" data-key="calculateSulfateButton"></button>
-        <div class="resultado" id="resultadoSulfato"></div>
+    <div class="secao-calculo collapsible collapsed">
+        <h2 onclick="toggleSection(this)">
+            <span data-key="sulfateTitle"></span>
+            <span class="toggle-arrow">▼</span>
+        </h2>
+        <div class="secao-content">
+            <p data-key="sulfateDescription"></p>
+            <button onclick="calcularSulfato()" data-key="calculateSulfateButton"></button>
+            <div class="resultado" id="resultadoSulfato"></div>
+        </div>
     </div>
 
-    <div class="secao-calculo">
-        <h2 data-key="algicideMaintenanceTitle"></h2>
-        <p data-key="algicideMaintenanceDescription"></p>
-        <button onclick="calcularAlgicidaManutencao()" data-key="calculateAlgicideMaintenanceButton"></button>
-        <div class="resultado" id="resultadoAlgicidaManutencao"></div>
+    <div class="secao-calculo collapsible collapsed">
+        <h2 onclick="toggleSection(this)">
+            <span data-key="algicideMaintenanceTitle"></span>
+            <span class="toggle-arrow">▼</span>
+        </h2>
+        <div class="secao-content">
+            <p data-key="algicideMaintenanceDescription"></p>
+            <button onclick="calcularAlgicidaManutencao()" data-key="calculateAlgicideMaintenanceButton"></button>
+            <div class="resultado" id="resultadoAlgicidaManutencao"></div>
+        </div>
     </div>
 
-    <div class="secao-calculo">
-        <h2 data-key="algicideShockTitle"></h2>
-        <p data-key="algicideShockDescription"></p>
-        <button onclick="calcularAlgicidaChoque()" data-key="calculateAlgicideShockButton"></button>
-        <div class="resultado" id="resultadoAlgicidaChoque"></div>
+    <div class="secao-calculo collapsible collapsed">
+        <h2 onclick="toggleSection(this)">
+            <span data-key="algicideShockTitle"></span>
+            <span class="toggle-arrow">▼</span>
+        </h2>
+        <div class="secao-content">
+            <p data-key="algicideShockDescription"></p>
+            <button onclick="calcularAlgicidaChoque()" data-key="calculateAlgicideShockButton"></button>
+            <div class="resultado" id="resultadoAlgicidaChoque"></div>
+        </div>
     </div>
 
     <!-- Seção Sobre o Autor -->
     <div class="secao-calculo secao-sobre" id="aboutSection">
-        <h2 data-key="aboutTitle" onclick="toggleAboutSection()">
+        <h2 onclick="toggleSection(this)">
             <span data-key="aboutTitle"></span>
             <span class="toggle-arrow">▼</span>
         </h2>
@@ -358,11 +410,11 @@
 
 <script>
     const translations = {
-        pt: { name: "Português", flagCode: "br", mainTitle: "Calculadora para Tratamento de Piscinas", poolVolumeLabel: "Volume da Piscina (L):", motorPowerLabel: "Potência do Motor (cv):", volumePlaceholder: "Ex: 50000", alkTitle: "1. Ajustar Alcalinidade Total (Elevar)", alkCurrentLabel: "Alcalinidade Atual (ppm):", alkCurrentPlaceholder: "Ex: 50", alkDesiredLabel: "Alcalinidade Desejada (Ideal 100 ppm):", calculateAlkButton: "Calcular Dosagem de Elevador", phTitle: "2. Ajustar pH (Elevar com Barrilha)", phCurrentLabel: "pH Atual:", phCurrentPlaceholder: "Ex: 6.8", phDesiredLabel: "pH Desejado (Ideal 7.4):", calculatePhButton: "Calcular Dosagem de Barrilha", chlorineTitle: "3. Dosagem de Cloro Granulado (Manutenção)", chlorineDescription: "A dosagem média para manutenção é de 4 gramas por 1.000 litros. Este cálculo é uma referência para a aplicação diária ou em dias alternados.", calculateChlorineButton: "Calcular Dosagem de Cloro", sulfateTitle: "4. Decantação com Sulfato de Alumínio", sulfateDescription: "Use para decantar a sujeira suspensa quando a água estiver muito turva. A dosagem padrão é de 40g por 1.000 litros. Após aplicar, corrija o pH com barrilha.", calculateSulfateButton: "Calcular Dosagem de Sulfato", algicideMaintenanceTitle: "5. Algicida de Manutenção", algicideMaintenanceDescription: "Para prevenção semanal de algas. A dosagem padrão é de 5ml por 1.000 litros.", calculateAlgicideMaintenanceButton: "Calcular Algicida de Manutenção", algicideShockTitle: "6. Algicida de Choque", algicideShockDescription: "Para eliminar algas já visíveis (água verde). A dosagem padrão é de 10ml por 1.000 litros.", calculateAlgicideShockButton: "Calcular Algicida de Choque", alertVolume: "Por favor, insira um volume e potência válidos antes de calcular.", alertFillFields: "Por favor, preencha os valores atual e desejado.", phOk: "O pH atual já está no nível desejado ou acima dele. Nenhum ajuste para elevar é necessário.", phAction: "Você deve adicionar aproximadamente {amount} kg de barrilha (elevador de pH).", alkOk: "A alcalinidade atual já está no nível desejado ou acima dele. Nenhum ajuste para elevar é necessário.", alkAction: "Você deve adicionar aproximadamente {amount} kg de elevador de alcalinidade (bicarbonato de sódio).", chlorineAction: "Para uma dosagem de manutenção, você deve adicionar aproximadamente {amount} gramas de cloro granulado.", sulfateAction: "Você deve adicionar aproximadamente {amount} gramas de sulfato de alumínio para decantação.", algicideMaintenanceAction: "Você deve adicionar aproximadamente {amount} ml de algicida de manutenção, uma vez por semana, para prevenir o surgimento de algas.", algicideShockAction: "Você deve adicionar aproximadamente {amount} ml de algicida de choque.", filtrationTimeText: "<br>Após aplicar, deixe o filtro na posição <b>Filtrar</b> por aproximadamente <b>{hours} horas</b> para uma mistura completa.", sulfateTimeText: "<br>Após aplicar, coloque o seletor na posição <b>Recircular</b> e deixe ligado por <b>{hours} horas</b>.", sulfateWarningText: "<br><b>IMPORTANTE:</b> Nunca use a opção 'Filtrar' com este produto para não empedrar a areia.", explanationTitle: "Explicação do Cálculo:", volumeLine: "Volume: {volume} litros ({volumeM3} m³)", phIncreaseLine: "Aumento de pH necessário: De {current} para {desired} = {diff}", phDosageLine: "Dosagem padrão: {dosage}g/m³ para cada 0.1 de aumento de pH", phCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} gramas", alkIncreaseLine: "Aumento de alcalinidade necessário: De {current} ppm para {desired} ppm = {diff} ppm", alkDosageLine: "Dosagem padrão: {dosage}g/m³ para cada 10 ppm de aumento", alkCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} gramas", chlorineDosageLine: "Dosagem padrão de manutenção: {dosage}g por 1.000 litros (1 m³)", chlorineCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}g = {result} gramas", sulfateDosageLine: "Dosagem padrão de decantação: {dosage}g por 1.000 litros (1 m³)", sulfateCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}g = {result} gramas", algicideDosageLine: "Dosagem padrão: {dosage}ml por 1.000 litros (1 m³)", algicideCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}ml = {result} ml", aboutTitle: "Sobre o autor", emailLabel: "E-mail:", githubLabel: "GitHub:" },
-        ru: { name: "Русский", flagCode: "ru", mainTitle: "Калькулятор для обработки бассейна", poolVolumeLabel: "Объем бассейна (л):", motorPowerLabel: "Мощность двигателя (л.с.):", volumePlaceholder: "Пример: 50000", alkTitle: "1. Регулировка общей щелочности (повышение)", alkCurrentLabel: "Текущая щелочность (ppm):", alkCurrentPlaceholder: "Пример: 50", alkDesiredLabel: "Желаемая щелочность (идеал 100 ppm):", calculateAlkButton: "Рассчитать дозировку повысителя", phTitle: "2. Регулировка pH (повышение кальцинированной содой)", phCurrentLabel: "Текущий pH:", phCurrentPlaceholder: "Пример: 6.8", phDesiredLabel: "Желаемый pH (идеал 7.4):", calculatePhButton: "Рассчитать дозировку соды", chlorineTitle: "3. Дозировка гранулированного хлора (поддержание)", chlorineDescription: "Средняя поддерживающая доза составляет 4 грамма на 1000 литров. Этот расчет является ориентировочным для ежедневного применения или через день.", calculateChlorineButton: "Рассчитать дозировку хлора", sulfateTitle: "4. Флоккуляция сульфатом алюминия", sulfateDescription: "Используйте для осаждения взвешенных частиц, когда вода очень мутная. Стандартная дозировка - 40г на 1000 литров. После применения скорректируйте pH кальцинированной содой.", calculateSulfateButton: "Рассчитать дозировку сульфата", algicideMaintenanceTitle: "5. Альгицид для поддержания", algicideMaintenanceDescription: "Для еженедельной профилактики водорослей. Стандартная дозировка - 5 мл на 1000 литров.", calculateAlgicideMaintenanceButton: "Рассчитать поддерживающий альгицид", algicideShockTitle: "6. Шоковый альгицид", algicideShockDescription: "Для уничтожения уже видимых водорослей (зеленая вода). Стандартная дозировка - 10 мл на 1000 литров.", calculateAlgicideShockButton: "Рассчитать шоковый альгицид", alertVolume: "Пожалуйста, введите действительный объем и мощность перед расчетом.", alertFillFields: "Пожалуйста, заполните текущие и желаемые значения.", phOk: "Текущий pH уже на желаемом уровне или выше. Повышение не требуется.", phAction: "Вам следует добавить примерно {amount} кг кальцинированной соды (повыситель pH).", alkOk: "Текущая щелочность уже на желаемом уровне или выше. Повышение не требуется.", alkAction: "Вам следует добавить примерно {amount} кг повысителя щелочности (бикарбонат натрия).", chlorineAction: "Для поддерживающей дозы вам следует добавить примерно {amount} граммов гранулированного хлора.", sulfateAction: "Вам следует добавить примерно {amount} граммов сульфата алюминия для флоккуляции.", algicideMaintenanceAction: "Вам следует добавить примерно {amount} мл поддерживающего альгицида, раз в неделю, для предотвращения роста водорослей.", algicideShockAction: "Вам следует добавить примерно {amount} мл шокового альгицида.", filtrationTimeText: "<br>После применения оставьте фильтр в положении <b>Фильтрация</b> примерно на <b>{hours} часов</b> для полного смешивания.", sulfateTimeText: "<br>После применения установите селектор в положение <b>Рециркуляция</b> и оставьте включенным на <b>{hours} часов</b>.", sulfateWarningText: "<br><b>ВАЖНО:</b> Никогда не используйте опцию 'Фильтрация' с этим продуктом, чтобы не повредить песок.", explanationTitle: "Объяснение расчета:", volumeLine: "Объем: {volume} литров ({volumeM3} м³)", phIncreaseLine: "Требуемое повышение pH: с {current} до {desired} = {diff}", phDosageLine: "Стандартная дозировка: {dosage}г/м³ на каждые 0.1 повышения pH", phCalculationLine: "Расчет: ({volumeM3} м³ * {dosage}г * ({diff} / 0.1)) = {result} граммов", alkIncreaseLine: "Требуемое повышение щелочности: с {current} ppm до {desired} ppm = {diff} ppm", alkDosageLine: "Стандартная дозировка: {dosage}г/м³ на каждые 10 ppm повышения", alkCalculationLine: "Расчет: ({volumeM3} m³ * {dosage}г * ({diff} / 10)) = {result} граммов", chlorineDosageLine: "Стандартная поддерживающая дозировка: {dosage}г на 1000 литров (1 м³)", chlorineCalculationLine: "Расчет: ({volumeM3} м³ * {dosage}г = {result} граммов", sulfateDosageLine: "Стандартная дозировка для флоккуляции: {dosage}г на 1000 литров (1 м³)", sulfateCalculationLine: "Расчет: {volumeM3} м³ * {dosage}г = {result} граммов", algicideDosageLine: "Стандартная дозировка: {dosage}мл на 1000 литров (1 м³)", algicideCalculationLine: "Расчет: {volumeM3} м³ * {dosage}мл = {result} мл", aboutTitle: "Об авторе", emailLabel: "Э-почта:", githubLabel: "GitHub:" },
-        hi: { name: "हिन्दी", flagCode: "in", mainTitle: "पूल उपचार कैलकुलेटर", poolVolumeLabel: "पूल का आयतन (L):", motorPowerLabel: "मोटर पावर (hp):", volumePlaceholder: "उदा: 50000", alkTitle: "1. कुल क्षारीयता समायोजित करें (बढ़ाएं)", alkCurrentLabel: "वर्तमान क्षारीयता (ppm):", alkCurrentPlaceholder: "उदा: 50", alkDesiredLabel: "वांछित क्षारीयता (आदर्श 100 ppm):", calculateAlkButton: "बढ़ाने वाले की खुराक की गणना करें", phTitle: "2. पीएच समायोजित करें (सोडा ऐश से बढ़ाएं)", phCurrentLabel: "वर्तमान पीएच:", phCurrentPlaceholder: "उदा: 6.8", phDesiredLabel: "वांछित पीएच (आदर्श 7.4):", calculatePhButton: "सोडा ऐश की खुराक की गणना करें", chlorineTitle: "3. दानेदार क्लोरीन की खुराक (रखरखाव)", chlorineDescription: "औसत रखरखाव खुराक प्रति 1,000 लीटर 4 ग्राम है। यह गणना दैनिक या वैकल्पिक दिन के आवेदन के लिए एक संदर्भ है।", calculateChlorineButton: "क्लोरीन की खुराक की गणना करें", sulfateTitle: "4. एल्यूमीनियम सल्फेट के साथ ऊर्णन", sulfateDescription: "जब पानी बहुत गंदा हो तो निलंबित गंदगी को निपटाने के लिए उपयोग करें। मानक खुराक प्रति 1,000 लीटर 40 ग्राम है। लगाने के बाद, सोडा ऐश से पीएच को सही करें।", calculateSulfateButton: "सल्फेट की खुराक की गणना करें", algicideMaintenanceTitle: "5. रखरखाव शैवालनाशक", algicideMaintenanceDescription: "साप्ताहिक शैवाल की रोकथाम के लिए। मानक खुराक प्रति 1,000 लीटर 5 मिली है।", calculateAlgicideMaintenanceButton: "रखरखाव शैवालनाशक की गणना करें", algicideShockTitle: "6. शॉक शैवालनाशक", algicideShockDescription: "पहले से दिखाई देने वाले शैवाल (हरा पानी) को खत्म करने के लिए। मानक खुराक प्रति 1,000 लीटर 10 मिली है।", calculateAlgicideShockButton: "शॉक शैवालनाशक की गणना करें", alertVolume: "गणना करने से पहले कृपया एक मान्य पूल आयतन और शक्ति दर्ज करें।", alertFillFields: " कृपया वर्तमान और वांछित मान भरें।", phOk: "वर्तमान पीएच पहले से ही वांछित स्तर पर या उससे ऊपर है। इसे बढ़ाने के लिए कोई समायोजन आवश्यक नहीं है।", phAction: "आपको लगभग {amount} किलो सोडा ऐश (पीएच बढ़ाने वाला) डालना चाहिए।", alkOk: "वर्तमान क्षारीयता पहले से ही वांछित स्तर पर या उससे ऊपर है। इसे बढ़ाने के लिए कोई समायोजन आवश्यक नहीं है।", alkAction: "आपको लगभग {amount} किलो क्षारीयता बढ़ाने वाला (सोडियम बाइकार्बोनेट) डालना चाहिए।", chlorineAction: "रखरखाव खुराक के लिए, आपको लगभग {amount} ग्राम दानेदार क्लोरीन डालना चाहिए।", sulfateAction: "ऊर्णन के लिए आपको लगभग {amount} ग्राम एल्यूमीनियम सल्फेट डालना चाहिए।", algicideMaintenanceAction: "आपको लगभग {amount} मिली रखरखाव शैवालनाशक, सप्ताह में एक बार, शैवाल के विकास को रोकने के लिए डालना चाहिए।", algicideShockAction: "आपको लगभग {amount} मिली शॉक शैवालनाशक डालना चाहिए।", filtrationTimeText: "<br>लगाने के बाद, पूर्ण मिश्रण के लिए फिल्टर को <b>फ़िल्टर</b> स्थिति में लगभग <b>{hours} घंटे</b> के लिए छोड़ दें।", sulfateTimeText: "<br>लगाने के बाद, चयनकर्ता को <b>पुनः परिसंचरण</b> स्थिति में रखें और इसे <b>{hours} घंटे</b> के लिए चालू रखें।", sulfateWarningText: "<br><b>महत्वपूर्ण:</b> रेत को सख्त होने से बचाने के लिए इस उत्पाद के साथ कभी भी 'फ़िल्टर' विकल्प का उपयोग न करें।", explanationTitle: "गणना की व्याख्या:", volumeLine: "आयतन: {volume} लीटर ({volumeM3} m³)", phIncreaseLine: "आवश्यक पीएच वृद्धि: {current} से {desired} = {diff}", phDosageLine: "मानक खुराक: प्रत्येक 0.1 पीएच वृद्धि के लिए {dosage}ग्राम/m³", phCalculationLine: "गणना: ({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} ग्राम", alkIncreaseLine: "आवश्यक क्षारीयता वृद्धि: {current} पीपीएम से {desired} पीपीएम = {diff} पीपीएम", alkDosageLine: "मानक खुराक: प्रत्येक 10 पीपीएम वृद्धि के लिए {dosage}ग्राम/m³", alkCalculationLine: "गणना: ({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} ग्राम", chlorineDosageLine: "मानक रखरखाव खुराक: प्रति 1,000 लीटर (1 m³) {dosage}ग्राम", chlorineCalculationLine: "गणना: {volumeM3} m³ * {dosage}g = {result} ग्राम", sulfateDosageLine: "मानक ऊर्णन खुराक: प्रति 1,000 लीटर (1 m³) {dosage}ग्राम", sulfateCalculationLine: "गणना: {volumeM3} m³ * {dosage}g = {result} ग्राम", algicideDosageLine: "मानक खुराक: प्रति 1,000 लीटर (1 m³) {dosage}मिली", algicideCalculationLine: "गणना: {volumeM3} m³ * {dosage}ml = {result} मिली", aboutTitle: "लेखक के बारे में", emailLabel: "ईमेल:", githubLabel: "GitHub:" },
-        zh: { name: "中文", flagCode: "cn", mainTitle: "泳池处理计算器", poolVolumeLabel: "泳池容量 (L):", motorPowerLabel: "马达功率 (hp):", volumePlaceholder: "例如：50000", alkTitle: "1. 调节总碱度（提高）", alkCurrentLabel: "当前碱度（ppm）：", alkCurrentPlaceholder: "例如：50", alkDesiredLabel: "期望碱度（理想100 ppm）：", calculateAlkButton: "计算增效剂用量", phTitle: "2. 调节pH值（用苏打粉提高）", phCurrentLabel: "当前pH值：", phCurrentPlaceholder: "例如：6.8", phDesiredLabel: "期望pH值（理想7.4）：", calculatePhButton: "计算苏打粉用量", chlorineTitle: "3. 颗粒氯用量（维护）", chlorineDescription: "平均维护剂量为每1000升4克。此计算可作为每日或隔日使用的参考。", calculateChlorineButton: "计算氯用量", sulfateTitle: "4. 用硫酸铝进行絮凝", sulfateDescription: "当水非常浑浊时，用于沉淀悬浮污物。标准剂量为每1000升40克。施用后，用苏打粉校正pH值。", calculateSulfateButton: "计算硫酸盐用量", algicideMaintenanceTitle: "5. 维护性除藻剂", algicideMaintenanceDescription: "用于每周预防藻类。标准剂量为每1000升5毫升。", calculateAlgicideMaintenanceButton: "计算维护性除藻剂", algicideShockTitle: "6. 冲击性除藻剂", algicideShockDescription: "用于清除已出现的藻类（绿水）。标准剂量为每1000升10毫升。", calculateAlgicideShockButton: "计算冲击性除藻剂", alertVolume: "计算前请输入有效的泳池容量和功率。", alertFillFields: "请填写当前值和期望值。", phOk: "当前pH值已达到或高于期望水平。无需进行提高调整。", phAction: "您应添加约 {amount} 公斤的苏打粉（pH增高剂）。", alkOk: "当前碱度已达到或高于期望水平。无需进行提高调整。", alkAction: "您应添加约 {amount} 公斤的碱度增高剂（碳酸氢钠）。", chlorineAction: "对于维护剂量，您应添加约 {amount} 克的颗粒氯。", sulfateAction: "您应添加约 {amount} 克的硫酸铝进行絮凝。", algicideMaintenanceAction: "您应添加约 {amount} 毫升的维护性除藻剂，每周一次，以防止藻类生长。", algicideShockAction: "您应添加约 {amount} 毫升的冲击性除藻剂。", filtrationTimeText: "<br>施用后，将过滤器置于<b>过滤</b>位置约<b>{hours}小时</b>以完全混合。", sulfateTimeText: "<br>施用后，将选择器置于<b>再循环</b>位置并保持开启<b>{hours}小时</b>。", sulfateWarningText: "<br><b>重要提示：</b>切勿将此产品与“过滤”选项一起使用，以免沙子硬化。", explanationTitle: "计算说明：", volumeLine: "容量：{volume} 升 ({volumeM3} m³)", phIncreaseLine: "需要提高的pH值：从 {current} 到 {desired} = {diff}", phDosageLine: "标准用量：每提高0.1 pH值，每立方米 {dosage} 克", phCalculationLine: "计算：({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} 克", alkIncreaseLine: "需要提高的碱度：从 {current} ppm 到 {desired} ppm = {diff} ppm", alkDosageLine: "标准用量：每提高10 ppm，每立方米 {dosage} 克", alkCalculationLine: "计算：({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} 克", chlorineDosageLine: "标准维护用量：每1000升（1立方米）{dosage} 克", chlorineCalculationLine: "计算：({volumeM3} m³ * {dosage}g = {result} 克", sulfateDosageLine: "标准絮凝用量：每1000升（1立方米）{dosage} 克", sulfateCalculationLine: "计算：({volumeM3} m³ * {dosage}g = {result} 克", algicideDosageLine: "标准用量：每1000升（1立方米）{dosage}毫升", algicideCalculationLine: "计算：({volumeM3} m³ * {dosage}ml = {result} 毫升", aboutTitle: "关于作者", emailLabel: "电子邮件:", githubLabel: "GitHub:" },
-        en: { name: "English", flagCode: "us", mainTitle: "Pool Treatment Calculator", poolVolumeLabel: "Pool Volume (L):", motorPowerLabel: "Motor Power (hp):", volumePlaceholder: "Ex: 50000", alkTitle: "1. Adjust Total Alkalinity (Raise)", alkCurrentLabel: "Current Alkalinity (ppm):", alkCurrentPlaceholder: "Ex: 50", alkDesiredLabel: "Desired Alkalinity (Ideal 100 ppm):", calculateAlkButton: "Calculate Raiser Dosage", phTitle: "2. Adjust pH (Raise with Soda Ash)", phCurrentLabel: "Current pH:", phCurrentPlaceholder: "Ex: 6.8", phDesiredLabel: "Desired pH (Ideal 7.4):", calculatePhButton: "Calculate Soda Ash Dosage", chlorineTitle: "3. Granular Chlorine Dosage (Maintenance)", chlorineDescription: "The average maintenance dose is 4 grams per 1,000 liters. This calculation is a reference for daily or alternate day application.", calculateChlorineButton: "Calculate Chlorine Dosage", sulfateTitle: "4. Flocculation with Aluminum Sulfate", sulfateDescription: "Use to settle suspended dirt when the water is very cloudy. The standard dosage is 40g per 1,000 liters. After applying, correct the pH with soda ash.", calculateSulfateButton: "Calculate Sulfate Dosage", algicideMaintenanceTitle: "5. Maintenance Algaecide", algicideMaintenanceDescription: "For weekly prevention of algae. The standard dosage is 5ml per 1,000 liters.", calculateAlgicideMaintenanceButton: "Calculate Maintenance Algaecide", algicideShockTitle: "6. Shock Algaecide", algicideShockDescription: "To eliminate already visible algae (green water). The standard dosage is 10ml per 1,000 liters.", calculateAlgicideShockButton: "Calculate Shock Algaecide", alertVolume: "Please enter a valid volume and power before calculating.", alertFillFields: "Please fill in the current and desired values.", phOk: "The current pH is already at or above the desired level. No adjustment to raise it is necessary.", phAction: "You should add approximately {amount} kg of soda ash (pH increaser).", alkOk: "The current alkalinity is already at or above the desired level. No adjustment to raise it is necessary.", alkAction: "You should add approximately {amount} kg of alkalinity increaser (sodium bicarbonate).", chlorineAction: "For a maintenance dose, you should add approximately {amount} grams of granular chlorine.", sulfateAction: "You should add approximately {amount} grams of aluminum sulfate for flocculation.", algicideMaintenanceAction: "You should add approximately {amount} ml of maintenance algaecide, once a week, to prevent algae growth.", algicideShockAction: "You should add approximately {amount} ml of shock algaecide.", filtrationTimeText: "<br>After applying, leave the filter on the <b>Filter</b> position for approximately <b>{hours} hours</b> for a complete mix.", sulfateTimeText: "<br>After applying, put the selector on the <b>Recirculate</b> position and leave it on for <b>{hours} hours</b>.", sulfateWarningText: "<br><b>IMPORTANT:</b> Never use the 'Filter' option with this product to avoid hardening the sand.", explanationTitle: "Calculation Explanation:", volumeLine: "Volume: {volume} liters ({volumeM3} m³)", phIncreaseLine: "Required pH increase: From {current} to {desired} = {diff}", phDosageLine: "Standard dosage: {dosage}g/m³ for each 0.1 pH increase", phCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} grams", alkIncreaseLine: "Required alkalinity increase: From {current} ppm to {desired} ppm = {diff} ppm", alkDosageLine: "Standard dosage: {dosage}g/m³ for each 10 ppm increase", alkCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} grams", chlorineDosageLine: "Standard maintenance dosage: {dosage}g per 1,000 liters (1 m³)", chlorineCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}g = {result} grams", sulfateDosageLine: "Standard flocculation dosage: {dosage}g per 1,000 liters (1 m³)", sulfateCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}g = {result} grams", algicideDosageLine: "Standard dosage: {dosage}ml per 1,000 liters (1 m³)", algicideCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}ml = {result} ml", aboutTitle: "About the author", emailLabel: "E-mail:", githubLabel: "GitHub:" }
+        pt: { name: "Português", flagCode: "br", mainTitle: "Calculadora para Tratamento de Piscinas com Cloro", poolVolumeLabel: "Volume da Piscina (L):", motorPowerLabel: "Potência do Motor (HP):", volumePlaceholder: "Ex: 50000", alkTitle: "1. Ajustar Alcalinidade Total (Elevar)", alkCurrentLabel: "Alcalinidade Atual (ppm):", alkCurrentPlaceholder: "Ex: 50", alkDesiredLabel: "Alcalinidade Desejada (Ideal 100 ppm):", calculateAlkButton: "Calcular Dosagem de Elevador", phTitle: "2. Ajustar pH (Apenas Barrilha)", phCurrentLabel: "pH Atual:", phCurrentPlaceholder: "Ex: 6.8", phDesiredLabel: "pH Desejado (Ideal 7.4):", calculatePhButton: "Calcular Dosagem de Barrilha", phCloroTitle: "3. Ajuste Combinado de Cloro e pH (Cloro + Barrilha)", phCloroDescription: "Calcula a dosagem de cloro para manutenção e a quantidade reduzida de barrilha necessária, já que o cloro também eleva o pH.", calculatePhCloroButton: "Calcular Tratamento Combinado", chlorineTitle: "4. Dosagem de Cloro Granulado (Manutenção)", chlorineDescription: "A dosagem média para manutenção é de 4 gramas por 1.000 litros. Este cálculo é uma referência para a aplicação diária ou em dias alternados.", calculateChlorineButton: "Calcular Dosagem de Cloro", sulfateTitle: "5. Decantação com Sulfato de Alumínio", sulfateDescription: "Use para decantar a sujeira suspensa quando a água estiver muito turva. A dosagem padrão é de 40g por 1.000 litros. Após aplicar, corrija o pH com barrilha.", calculateSulfateButton: "Calcular Dosagem de Sulfato", algicideMaintenanceTitle: "6. Algicida de Manutenção", algicideMaintenanceDescription: "Para prevenção semanal de algas. A dosagem padrão é de 5ml por 1.000 litros.", calculateAlgicideMaintenanceButton: "Calcular Algicida de Manutenção", algicideShockTitle: "7. Algicida de Choque", algicideShockDescription: "Para eliminar algas já visíveis (água verde). A dosagem padrão é de 10ml por 1.000 litros.", calculateAlgicideShockButton: "Calcular Algicida de Choque", alertVolume: "Por favor, insira um volume e potência válidos antes de calcular.", alertFillFields: "Por favor, preencha os valores atual e desejado.", phOk: "O pH atual já está no nível desejado ou acima dele. Nenhum ajuste para elevar é necessário.", phAction: "Você deve adicionar aproximadamente {amount} kg de barrilha (elevador de pH).", phCloroAction: "Para o tratamento, adicione {amountChlorine}g de cloro e {amountSoda}kg de barrilha.", phCloroActionOnlyChlorine: "Para o tratamento, adicione {amountChlorine}g de cloro. O pH já será corrigido o suficiente.", alkOk: "A alcalinidade atual já está no nível desejado ou acima dele. Nenhum ajuste para elevar é necessário.", alkAction: "Você deve adicionar aproximadamente {amount} kg de elevador de alcalinidade (bicarbonato de sódio).", chlorineAction: "Para uma dosagem de manutenção, você deve adicionar aproximadamente {amount} gramas de cloro granulado.", sulfateAction: "Você deve adicionar aproximadamente {amount} gramas de sulfato de alumínio para decantação.", algicideMaintenanceAction: "Você deve adicionar aproximadamente {amount} ml de algicida de manutenção, uma vez por semana, para prevenir o surgimento de algas.", algicideShockAction: "Você deve adicionar aproximadamente {amount} ml de algicida de choque.", filtrationTimeText: "<br>Após aplicar, deixe o filtro na posição <b>Filtrar</b> por aproximadamente <b>{hours} horas</b> para uma mistura completa.", sulfateTimeText: "<br>Após aplicar, coloque o seletor na posição <b>Recircular</b> e deixe ligado por <b>{hours} horas</b>.", sulfateWarningText: "<br><b>IMPORTANTE:</b> Nunca use a opção 'Filtrar' com este produto para não empedrar a areia.", explanationTitle: "Explicação do Cálculo:", volumeLine: "Volume: {volume} litros ({volumeM3} m³)", phIncreaseLine: "Aumento de pH necessário: De {current} para {desired} = {diff}", phDosageLine: "Dosagem padrão: {dosage}g/m³ para cada 0.1 de aumento de pH", phCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} gramas", alkIncreaseLine: "Aumento de alcalinidade necessário: De {current} ppm para {desired} ppm = {diff} ppm", alkDosageLine: "Dosagem padrão: {dosage}g/m³ para cada 10 ppm de aumento", alkCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} gramas", chlorineDosageLine: "Dosagem padrão de manutenção: {dosage}g por 1.000 litros (1 m³)", chlorineCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}g = {result} gramas", sulfateDosageLine: "Dosagem padrão de decantação: {dosage}g por 1.000 litros (1 m³)", sulfateCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}g = {result} gramas", algicideDosageLine: "Dosagem padrão: {dosage}ml por 1.000 litros (1 m³)", algicideCalculationLine: "Cálculo: ({volumeM3} m³ * {dosage}ml = {result} ml", aboutTitle: "Sobre o autor", emailLabel: "E-mail:", githubLabel: "GitHub:" },
+        ru: { name: "Русский", flagCode: "ru", mainTitle: "Калькулятор для обработки бассейна хлором", poolVolumeLabel: "Объем бассейна (л):", motorPowerLabel: "Мощность двигателя (HP):", volumePlaceholder: "Пример: 50000", alkTitle: "1. Регулировка общей щелочности (повышение)", alkCurrentLabel: "Текущая щелочность (ppm):", alkCurrentPlaceholder: "Пример: 50", alkDesiredLabel: "Желаемая щелочность (идеал 100 ppm):", calculateAlkButton: "Рассчитать дозировку повысителя", phTitle: "2. Регулировка pH (только кальцинированная сода)", phCurrentLabel: "Текущий pH:", phCurrentPlaceholder: "Пример: 6.8", phDesiredLabel: "Желаемый pH (идеал 7.4):", calculatePhButton: "Рассчитать дозировку соды", phCloroTitle: "3. Комбинированная регулировка хлора и pH (хлор + сода)", phCloroDescription: "Рассчитывает поддерживающую дозу хлора и уменьшенное количество соды, так как хлор также повышает pH.", calculatePhCloroButton: "Рассчитать комбинированную обработку", chlorineTitle: "4. Дозировка гранулированного хлора (поддержание)", chlorineDescription: "Средняя поддерживающая доза составляет 4 грамма на 1000 литров. Этот расчет является ориентировочным для ежедневного применения или через день.", calculateChlorineButton: "Рассчитать дозировку хлора", sulfateTitle: "5. Флоккуляция сульфатом алюминия", sulfateDescription: "Используйте для осаждения взвешенных частиц, когда вода очень мутная. Стандартная дозировка - 40г на 1000 литров. После применения скорректируйте pH кальцинированной содой.", calculateSulfateButton: "Рассчитать дозировку сульфата", algicideMaintenanceTitle: "6. Альгицид для поддержания", algicideMaintenanceDescription: "Для еженедельной профилактики водорослей. Стандартная дозировка - 5 мл на 1000 литров.", calculateAlgicideMaintenanceButton: "Рассчитать поддерживающий альгицид", algicideShockTitle: "7. Шоковый альгицид", algicideShockDescription: "Для уничтожения уже видимых водорослей (зеленая вода). Стандартная дозировка - 10 мл на 1000 литров.", calculateAlgicideShockButton: "Рассчитать шоковый альгицид", alertVolume: "Пожалуйста, введите действительный объем и мощность перед расчетом.", alertFillFields: "Пожалуйста, заполните текущие и желаемые значения.", phOk: "Текущий pH уже на желаемом уровне или выше. Повышение не требуется.", phAction: "Вам следует добавить примерно {amount} кг кальцинированной соды (повыситель pH).", phCloroAction: "Для обработки добавьте {amountChlorine}г хлора и {amountSoda}кг соды.", phCloroActionOnlyChlorine: "Для обработки добавьте {amountChlorine}г хлора. pH будет достаточно скорректирован.", alkOk: "Текущая щелочность уже на желаемом уровне или выше. Повышение не требуется.", alkAction: "Вам следует добавить примерно {amount} кг повысителя щелочности (бикарбонат натрия).", chlorineAction: "Для поддерживающей дозы вам следует добавить примерно {amount} граммов гранулированного хлора.", sulfateAction: "Вам следует добавить примерно {amount} граммов сульфата алюминия для флоккуляции.", algicideMaintenanceAction: "Вам следует добавить примерно {amount} мл поддерживающего альгицида, раз в неделю, для предотвращения роста водорослей.", algicideShockAction: "Вам следует добавить примерно {amount} мл шокового альгицида.", filtrationTimeText: "<br>После применения оставьте фильтр в положении <b>Фильтрация</b> примерно на <b>{hours} часов</b> для полного смешивания.", sulfateTimeText: "<br>После применения установите селектор в положение <b>Рециркуляция</b> и оставьте включенным на <b>{hours} часов</b>.", sulfateWarningText: "<br><b>ВАЖНО:</b> Никогда не используйте опцию 'Фильтрация' с этим продуктом, чтобы не повредить песок.", explanationTitle: "Объяснение расчета:", volumeLine: "Объем: {volume} литров ({volumeM3} м³)", phIncreaseLine: "Требуемое повышение pH: с {current} до {desired} = {diff}", phDosageLine: "Стандартная дозировка: {dosage}г/м³ на каждые 0.1 повышения pH", phCalculationLine: "Расчет: ({volumeM3} м³ * {dosage}г * ({diff} / 0.1)) = {result} граммов", alkIncreaseLine: "Требуемое повышение щелочности: с {current} ppm до {desired} ppm = {diff} ppm", alkDosageLine: "Стандартная дозировка: {dosage}г/м³ на каждые 10 ppm повышения", alkCalculationLine: "Расчет: ({volumeM3} m³ * {dosage}г * ({diff} / 10)) = {result} граммов", chlorineDosageLine: "Стандартная поддерживающая дозировка: {dosage}г на 1000 литров (1 м³)", chlorineCalculationLine: "Расчет: ({volumeM3} м³ * {dosage}г = {result} граммов", sulfateDosageLine: "Стандартная дозировка для флоккуляции: {dosage}г на 1000 литров (1 м³)", sulfateCalculationLine: "Расчет: {volumeM3} м³ * {dosage}г = {result} граммов", algicideDosageLine: "Стандартная дозировка: {dosage}мл на 1000 литров (1 м³)", algicideCalculationLine: "Расчет: {volumeM3} м³ * {dosage}мл = {result} мл", aboutTitle: "Об авторе", emailLabel: "Э-почта:", githubLabel: "GitHub:" },
+        hi: { name: "हिन्दी", flagCode: "in", mainTitle: "क्लोरीन पूल उपचार कैलकुलेटर", poolVolumeLabel: "पूल का आयतन (L):", motorPowerLabel: "मोटर पावर (HP):", volumePlaceholder: "उदा: 50000", alkTitle: "1. कुल क्षारीयता समायोजित करें (बढ़ाएं)", alkCurrentLabel: "वर्तमान क्षारीयता (ppm):", alkCurrentPlaceholder: "उदा: 50", alkDesiredLabel: "वांछित क्षारीयता (आदर्श 100 ppm):", calculateAlkButton: "बढ़ाने वाले की खुराक की गणना करें", phTitle: "2. पीएच समायोजित करें (केवल सोडा ऐश)", phCurrentLabel: "वर्तमान पीएच:", phCurrentPlaceholder: "उदा: 6.8", phDesiredLabel: "वांछित पीएच (आदर्श 7.4):", calculatePhButton: "सोडा ऐश की खुराक की गणना करें", phCloroTitle: "3. क्लोरीन और पीएच का संयुक्त समायोजन (क्लोरीन + सोडा ऐश)", phCloroDescription: "रखरखाव क्लोरीन खुराक और आवश्यक सोडा ऐश की कम मात्रा की गणना करता है, क्योंकि क्लोरीन भी पीएच बढ़ाता है।", calculatePhCloroButton: "संयुक्त उपचार की गणना करें", chlorineTitle: "4. दानेदार क्लोरीन की खुराक (रखरखाव)", chlorineDescription: "औसत रखरखाव खुराक प्रति 1,000 लीटर 4 ग्राम है। यह गणना दैनिक या वैकल्पिक दिन के आवेदन के लिए एक संदर्भ है।", calculateChlorineButton: "क्लोरीन की खुराक की गणना करें", sulfateTitle: "5. एल्यूमीनियम सल्फेट के साथ ऊर्णन", sulfateDescription: "जब पानी बहुत गंदा हो तो निलंबित गंदगी को निपटाने के लिए उपयोग करें। मानक खुराक प्रति 1,000 लीटर 40 ग्राम है। लगाने के बाद, सोडा ऐश से पीएच को सही करें।", calculateSulfateButton: "सल्फेट की खुराक की गणना करें", algicideMaintenanceTitle: "6. रखरखाव शैवालनाशक", algicideMaintenanceDescription: "साप्ताहिक शैवाल की रोकथाम के लिए। मानक खुराक प्रति 1,000 लीटर 5 मिली है।", calculateAlgicideMaintenanceButton: "रखरखाव शैवालनाशक की गणना करें", algicideShockTitle: "7. शॉक शैवालनाशक", algicideShockDescription: "पहले से दिखाई देने वाले शैवाल (हरा पानी) को खत्म करने के लिए। मानक खुराक प्रति 1,000 लीटर 10 मिली है।", calculateAlgicideShockButton: "शॉक शैवालनाशक की गणना करें", alertVolume: "गणना करने से पहले कृपया एक मान्य पूल आयतन और शक्ति दर्ज करें।", alertFillFields: " कृपया वर्तमान और वांछित मान भरें।", phOk: "वर्तमान पीएच पहले से ही वांछित स्तर पर या उससे ऊपर है। इसे बढ़ाने के लिए कोई समायोजन आवश्यक नहीं है।", phAction: "आपको लगभग {amount} किलो सोडा ऐश (पीएच बढ़ाने वाला) डालना चाहिए।", phCloroAction: "उपचार के लिए, {amountChlorine}ग्राम क्लोरीन और {amountSoda}किलो सोडा ऐश डालें।", phCloroActionOnlyChlorine: "उपचार के लिए, {amountChlorine}ग्राम क्लोरीन डालें। पीएच पर्याप्त रूप से सही हो जाएगा।", alkOk: "वर्तमान क्षारीयता पहले से ही वांछित स्तर पर या उससे ऊपर है। इसे बढ़ाने के लिए कोई समायोजन आवश्यक नहीं है।", alkAction: "आपको लगभग {amount} किलो क्षारीयता बढ़ाने वाला (सोडियम बाइकार्बोनेट) डालना चाहिए।", chlorineAction: "रखरखाव खुराक के लिए, आपको लगभग {amount} ग्राम दानेदार क्लोरीन डालना चाहिए।", sulfateAction: "ऊर्णन के लिए आपको लगभग {amount} ग्राम एल्यूमीनियम सल्फेट डालना चाहिए।", algicideMaintenanceAction: "आपको लगभग {amount} मिली रखरखाव शैवालनाशक, सप्ताह में एक बार, शैवाल के विकास को रोकने के लिए डालना चाहिए।", algicideShockAction: "आपको लगभग {amount} मिली शॉक शैवालनाशक डालना चाहिए।", filtrationTimeText: "<br>लगाने के बाद, पूर्ण मिश्रण के लिए फिल्टर को <b>फ़िल्टर</b> स्थिति में लगभग <b>{hours} घंटे</b> के लिए छोड़ दें।", sulfateTimeText: "<br>लगाने के बाद, चयनकर्ता को <b>पुनः परिसंचरण</b> स्थिति में रखें और इसे <b>{hours} घंटे</b> के लिए चालू रखें।", sulfateWarningText: "<br><b>महत्वपूर्ण:</b> रेत को सख्त होने से बचाने के लिए इस उत्पाद के साथ कभी भी 'फ़िल्टर' विकल्प का उपयोग न करें।", explanationTitle: "गणना की व्याख्या:", volumeLine: "आयतन: {volume} लीटर ({volumeM3} m³)", phIncreaseLine: "आवश्यक पीएच वृद्धि: {current} से {desired} = {diff}", phDosageLine: "मानक खुराक: प्रत्येक 0.1 पीएच वृद्धि के लिए {dosage}ग्राम/m³", phCalculationLine: "गणना: ({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} ग्राम", alkIncreaseLine: "आवश्यक क्षारीयता वृद्धि: {current} पीपीएम से {desired} पीपीएम = {diff} पीपीएम", alkDosageLine: "मानक खुराक: प्रत्येक 10 पीपीएम वृद्धि के लिए {dosage}ग्राम/m³", alkCalculationLine: "गणना: ({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} ग्राम", chlorineDosageLine: "मानक रखरखाव खुराक: प्रति 1,000 लीटर (1 m³) {dosage}ग्राम", chlorineCalculationLine: "गणना: {volumeM3} m³ * {dosage}g = {result} ग्राम", sulfateDosageLine: "मानक ऊर्णन खुराक: प्रति 1,000 लीटर (1 m³) {dosage}ग्राम", sulfateCalculationLine: "गणना: {volumeM3} m³ * {dosage}g = {result} ग्राम", algicideDosageLine: "मानक खुराक: प्रति 1,000 लीटर (1 m³) {dosage}मिली", algicideCalculationLine: "गणना: {volumeM3} m³ * {dosage}ml = {result} मिली", aboutTitle: "लेखक के बारे में", emailLabel: "ईमेल:", githubLabel: "GitHub:" },
+        zh: { name: "中文", flagCode: "cn", mainTitle: "含氯泳池处理计算器", poolVolumeLabel: "泳池容量 (L):", motorPowerLabel: "马达功率 (HP):", volumePlaceholder: "例如：50000", alkTitle: "1. 调节总碱度（提高）", alkCurrentLabel: "当前碱度（ppm）：", alkCurrentPlaceholder: "例如：50", alkDesiredLabel: "期望碱度（理想100 ppm）：", calculateAlkButton: "计算增效剂用量", phTitle: "2. 调节pH值（仅苏打粉）", phCurrentLabel: "当前pH值：", phCurrentPlaceholder: "例如：6.8", phDesiredLabel: "期望pH值（理想7.4）：", calculatePhButton: "计算苏打粉用量", phCloroTitle: "3. 氯和pH的组合调节（氯+苏打粉）", phCloroDescription: "计算维护性氯用量和所需的减少的苏打粉量，因为氯也会提高pH值。", calculatePhCloroButton: "计算组合处理", chlorineTitle: "4. 颗粒氯用量（维护）", chlorineDescription: "平均维护剂量为每1000升4克。此计算可作为每日或隔日使用的参考。", calculateChlorineButton: "计算氯用量", sulfateTitle: "5. 用硫酸铝进行絮凝", sulfateDescription: "当水非常浑浊时，用于沉淀悬浮污物。标准剂量为每1000升40克。施用后，用苏打粉校正pH值。", calculateSulfateButton: "计算硫酸盐用量", algicideMaintenanceTitle: "6. 维护性除藻剂", algicideMaintenanceDescription: "用于每周预防藻类。标准剂量为每1000升5毫升。", calculateAlgicideMaintenanceButton: "计算维护性除藻剂", algicideShockTitle: "7. 冲击性除藻剂", algicideShockDescription: "用于清除已出现的藻类（绿水）。标准剂量为每1000升10毫升。", calculateAlgicideShockButton: "计算冲击性除藻剂", alertVolume: "计算前请输入有效的泳池容量和功率。", alertFillFields: "请填写当前值和期望值。", phOk: "当前pH值已达到或高于期望水平。无需进行提高调整。", phAction: "您应添加约 {amount} 公斤的苏打粉（pH增高剂）。", phCloroAction: "对于处理，请添加 {amountChlorine} 克氯和 {amountSoda} 公斤苏打粉。", phCloroActionOnlyChlorine: "对于处理，请添加 {amountChlorine} 克氯。pH值将得到充分校正。", alkOk: "当前碱度已达到或高于期望水平。无需进行提高调整。", alkAction: "您应添加约 {amount} 公斤的碱度增高剂（碳酸氢钠）。", chlorineAction: "对于维护剂量，您应添加约 {amount} 克的颗粒氯。", sulfateAction: "您应添加约 {amount} 克的硫酸铝进行絮凝。", algicideMaintenanceAction: "您应添加约 {amount} 毫升的维护性除藻剂，每周一次，以防止藻类生长。", algicideShockAction: "您应添加约 {amount} 毫升的冲击性除藻剂。", filtrationTimeText: "<br>施用后，将过滤器置于<b>过滤</b>位置约<b>{hours}小时</b>以完全混合。", sulfateTimeText: "<br>施用后，将选择器置于<b>再循环</b>位置并保持开启<b>{hours}小时</b>。", sulfateWarningText: "<br><b>重要提示：</b>切勿将此产品与“过滤”选项一起使用，以免沙子硬化。", explanationTitle: "计算说明：", volumeLine: "容量：{volume} 升 ({volumeM3} m³)", phIncreaseLine: "需要提高的pH值：从 {current} 到 {desired} = {diff}", phDosageLine: "标准用量：每提高0.1 pH值，每立方米 {dosage} 克", phCalculationLine: "计算：({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} 克", alkIncreaseLine: "需要提高的碱度：从 {current} ppm 到 {desired} ppm = {diff} ppm", alkDosageLine: "标准用量：每提高10 ppm，每立方米 {dosage} 克", alkCalculationLine: "计算：({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} 克", chlorineDosageLine: "标准维护用量：每1000升（1立方米）{dosage} 克", chlorineCalculationLine: "计算：({volumeM3} m³ * {dosage}g = {result} 克", sulfateDosageLine: "标准絮凝用量：每1000升（1立方米）{dosage} 克", sulfateCalculationLine: "计算：({volumeM3} m³ * {dosage}g = {result} 克", algicideDosageLine: "标准用量：每1000升（1立方米）{dosage}毫升", algicideCalculationLine: "计算：({volumeM3} m³ * {dosage}ml = {result} 毫升", aboutTitle: "关于作者", emailLabel: "电子邮件:", githubLabel: "GitHub:" },
+        en: { name: "English", flagCode: "us", mainTitle: "Pool Treatment Calculator with Chlorine", poolVolumeLabel: "Pool Volume (L):", motorPowerLabel: "Motor Power (HP):", volumePlaceholder: "Ex: 50000", alkTitle: "1. Adjust Total Alkalinity (Raise)", alkCurrentLabel: "Current Alkalinity (ppm):", alkCurrentPlaceholder: "Ex: 50", alkDesiredLabel: "Desired Alkalinity (Ideal 100 ppm):", calculateAlkButton: "Calculate Raiser Dosage", phTitle: "2. Adjust pH (Soda Ash Only)", phCurrentLabel: "Current pH:", phCurrentPlaceholder: "Ex: 6.8", phDesiredLabel: "Desired pH (Ideal 7.4):", calculatePhButton: "Calculate Soda Ash Dosage", phCloroTitle: "3. Combined Chlorine & pH Adjustment (Chlorine + Soda Ash)", phCloroDescription: "Calculates the maintenance chlorine dose and the reduced amount of soda ash needed, as chlorine also raises the pH.", calculatePhCloroButton: "Calculate Combined Treatment", chlorineTitle: "4. Granular Chlorine Dosage (Maintenance)", chlorineDescription: "The average maintenance dose is 4 grams per 1,000 liters. This calculation is a reference for daily or alternate day application.", calculateChlorineButton: "Calculate Chlorine Dosage", sulfateTitle: "5. Flocculation with Aluminum Sulfate", sulfateDescription: "Use to settle suspended dirt when the water is very cloudy. The standard dosage is 40g per 1,000 liters. After applying, correct the pH with soda ash.", calculateSulfateButton: "Calculate Sulfate Dosage", algicideMaintenanceTitle: "6. Maintenance Algaecide", algicideMaintenanceDescription: "For weekly prevention of algae. The standard dosage is 5ml per 1,000 liters.", calculateAlgicideMaintenanceButton: "Calculate Maintenance Algaecide", algicideShockTitle: "7. Shock Algaecide", algicideShockDescription: "To eliminate already visible algae (green water). The standard dosage is 10ml per 1,000 liters.", calculateAlgicideShockButton: "Calculate Shock Algaecide", alertVolume: "Please enter a valid volume and power before calculating.", alertFillFields: "Please fill in the current and desired values.", phOk: "The current pH is already at or above the desired level. No adjustment to raise it is necessary.", phAction: "You should add approximately {amount} kg of soda ash (pH increaser).", phCloroAction: "For the treatment, add {amountChlorine}g of chlorine and {amountSoda}kg of soda ash.", phCloroActionOnlyChlorine: "For the treatment, add {amountChlorine}g of chlorine. The pH will be corrected enough.", alkOk: "The current alkalinity is already at or above the desired level. No adjustment to raise it is necessary.", alkAction: "You should add approximately {amount} kg of alkalinity increaser (sodium bicarbonate).", chlorineAction: "For a maintenance dose, you should add approximately {amount} grams of granular chlorine.", sulfateAction: "You should add approximately {amount} grams of aluminum sulfate for flocculation.", algicideMaintenanceAction: "You should add approximately {amount} ml of maintenance algaecide, once a week, to prevent algae growth.", algicideShockAction: "You should add approximately {amount} ml of shock algaecide.", filtrationTimeText: "<br>After applying, leave the filter on the <b>Filter</b> position for approximately <b>{hours} hours</b> for a complete mix.", sulfateTimeText: "<br>After applying, put the selector on the <b>Recirculate</b> position and leave it on for <b>{hours} hours</b>.", sulfateWarningText: "<br><b>IMPORTANT:</b> Never use the 'Filter' option with this product to avoid hardening the sand.", explanationTitle: "Calculation Explanation:", volumeLine: "Volume: {volume} liters ({volumeM3} m³)", phIncreaseLine: "Required pH increase: From {current} to {desired} = {diff}", phDosageLine: "Standard dosage: {dosage}g/m³ for each 0.1 pH increase", phCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}g * ({diff} / 0.1)) = {result} grams", alkIncreaseLine: "Required alkalinity increase: From {current} ppm to {desired} ppm = {diff} ppm", alkDosageLine: "Standard dosage: {dosage}g/m³ for each 10 ppm increase", alkCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}g * ({diff} / 10)) = {result} grams", chlorineDosageLine: "Standard maintenance dosage: {dosage}g per 1,000 liters (1 m³)", chlorineCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}g = {result} grams", sulfateDosageLine: "Standard flocculation dosage: {dosage}g per 1,000 liters (1 m³)", sulfateCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}g = {result} grams", algicideDosageLine: "Standard dosage: {dosage}ml per 1,000 liters (1 m³)", algicideCalculationLine: "Calculation: ({volumeM3} m³ * {dosage}ml = {result} ml", aboutTitle: "About the author", emailLabel: "E-mail:", githubLabel: "GitHub:" }
     };
 
     let currentLanguage = 'pt';
@@ -400,28 +452,23 @@
         selectBtnContent.innerHTML = `<img src="https://flagcdn.com/w20/${translations[lang].flagCode}.png" alt="${translations[lang].name} flag" class="flag-icon"><span>${translations[lang].name}</span>`;
         document.querySelectorAll('[data-key]').forEach(elem => {
             const key = elem.dataset.key;
-            if (elem.childNodes.length > 1 && elem.tagName === 'H2') {
-                 elem.childNodes.forEach(child => {
-                    if (child.dataset && child.dataset.key) {
-                        child.textContent = translations[lang][child.dataset.key] || '';
-                    }
-                 });
-                 const titleSpan = elem.querySelector('span[data-key="aboutTitle"]');
-                 if(titleSpan) titleSpan.textContent = translations[lang].aboutTitle;
-
-            } else {
-                elem.textContent = translations[lang][key] || '';
-            }
+            elem.textContent = translations[lang][key] || '';
         });
         document.querySelectorAll('[data-placeholder-key]').forEach(elem => elem.placeholder = translations[lang][elem.dataset.placeholderKey] || '');
     }
     
-    function toggleAboutSection() {
-        const aboutSection = document.getElementById('aboutSection');
-        aboutSection.classList.toggle('collapsed');
+    function toggleSection(headerElement) {
+        const section = headerElement.parentElement;
+        if (section.classList.contains('collapsible') || section.classList.contains('secao-sobre')) {
+            section.classList.toggle('collapsed');
+        }
     }
 
-    document.addEventListener('DOMContentLoaded', () => setLanguage('pt'));
+    document.addEventListener('DOMContentLoaded', () => {
+        setLanguage('pt');
+        // Start with the "About" section collapsed
+        document.getElementById('aboutSection').classList.add('collapsed');
+    });
 
     function getPoolParameters() {
         const volumeInput = document.getElementById('volumePiscina');
@@ -622,6 +669,69 @@
         const visualizacaoHtml = gerarVisualizacao(dosagemKg, 'ph');
 
         exibirResultado('resultadoPH', frase, explicacao, visualizacaoHtml);
+    }
+
+    function calcularPhCloroCombinado() {
+        const params = getPoolParameters();
+        if (!params) return;
+        const { volume, potencia } = params;
+
+        const atual = parseFloat(document.getElementById('phCloroAtual').value);
+        const desejado = parseFloat(document.getElementById('phCloroDesejado').value);
+
+        if (isNaN(atual) || isNaN(desejado)) {
+            exibirResultado('resultadoPhCloro', translations[currentLanguage].alertFillFields, '', '');
+            return;
+        }
+        if (atual >= desejado) {
+            exibirResultado('resultadoPhCloro', translations[currentLanguage].phOk, '', '');
+            return;
+        }
+        
+        const volumeM3 = volume / 1000;
+
+        // Step 1: Calculate Chlorine
+        const gramasCloroPorM3 = 4;
+        const dosagemCloroGramas = volumeM3 * gramasCloroPorM3;
+
+        // Step 2: Estimate pH increase from chlorine
+        const phAumentoCloro = 0.1;
+        const phIntermediario = atual + phAumentoCloro;
+
+        // Step 3: Calculate remaining soda ash needed
+        let dosagemBarrilhaKg = 0;
+        let dosagemBarrilhaGramas = 0;
+        const aumentoPhNecessario = desejado - phIntermediario;
+
+        if (aumentoPhNecessario > 0) {
+            const gramasBarrilhaPorM3PorPonto = 6;
+            dosagemBarrilhaGramas = volumeM3 * gramasBarrilhaPorM3PorPonto * (aumentoPhNecessario / 0.1);
+            dosagemBarrilhaKg = dosagemBarrilhaGramas / 1000;
+        }
+        
+        let frase;
+        if (dosagemBarrilhaKg > 0.01) {
+            frase = translations[currentLanguage].phCloroAction
+                .replace('{amountChlorine}', dosagemCloroGramas.toFixed(0))
+                .replace('{amountSoda}', dosagemBarrilhaKg.toFixed(2));
+        } else {
+            frase = translations[currentLanguage].phCloroActionOnlyChlorine
+                .replace('{amountChlorine}', dosagemCloroGramas.toFixed(0));
+        }
+
+        const tempoHoras = calculateFiltrationTime(volume, potencia);
+        if (tempoHoras > 0) frase += translations[currentLanguage].filtrationTimeText.replace('{hours}', tempoHoras.toFixed(1));
+
+        const explicacao = [
+            `<b>Cloro:</b> ${translations[currentLanguage].chlorineCalculationLine.replace('{volumeM3}', volumeM3.toFixed(2)).replace('{dosage}', gramasCloroPorM3).replace('{result}', dosagemCloroGramas.toFixed(2))}`,
+            `<b>Barrilha:</b> pH após cloro: ${phIntermediario.toFixed(2)}. Aumento restante: ${(aumentoPhNecessario > 0 ? aumentoPhNecessario : 0).toFixed(2)}. ${translations[currentLanguage].phCalculationLine.replace('{volumeM3}', volumeM3.toFixed(2)).replace('{dosage}', 6).replace('{diff}', (aumentoPhNecessario > 0 ? aumentoPhNecessario : 0).toFixed(1)).replace('{result}', dosagemBarrilhaGramas.toFixed(2))}`
+        ].join('<br>');
+        
+        const visualizacaoCloro = gerarVisualizacao(dosagemCloroGramas, 'chlorine');
+        const visualizacaoBarrilha = (dosagemBarrilhaKg > 0.01) ? gerarVisualizacao(dosagemBarrilhaKg, 'ph') : '';
+        const visualizacaoHtml = visualizacaoCloro + visualizacaoBarrilha;
+
+        exibirResultado('resultadoPhCloro', frase, explicacao, visualizacaoHtml);
     }
 
     function calcularCloro() {
